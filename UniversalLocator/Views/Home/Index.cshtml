@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+    <div class="text-center">
+        <h1 class="display-4">Please Enter a ZipCode</h1>
+        <br />
+        <br />
+        <lablel>
+            Zipcode:
+            <input id="zipcode" value="" type="number" maxlength="5" />
+        </lablel>
+
+        <label>
+            <button id="search" onclick="onSearch()">Search</button>
+        </label>
+        <br />
+        <br />
+
+        <div class="resultDiv">
+            <div class="success">
+                <h4>You have entered zipcode: <span id="resultZip"></span></h4>
+                <h4>Your city is: <span id="resultCity"></span></h4>
+                <h4>Your state is: <span id="resultState"></span></h4>
+                <h4>Your distance from MindGrub's office location is: <span id="resultDistance"></span> miles</h4>
+            </div>
+            <div class="failure">
+                <h4> Your entered zipcode cannot be found!</h4>
+            </div>
+        </div>
+
+    </div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('.success').hide();
+            $('.failure').hide();
+            $('#search').prop('disabled', true);
+
+            $('#zipcode').on("keyup", function () {
+                if ($(this).val() != '') {
+                    $('#search').prop('disabled', false);
+                }
+            });
+        });
+
+        function onSearch() {
+            const zipcode = $('#zipcode').val();
+            $.ajax({
+                type: "GET",
+                url: `/api/Locator/${zipcode}`,
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                success: function(place) {
+                    if (place) {
+                        $('#resultZip').html(zipcode);
+                        $('#resultCity').html(place.city)
+                        $('#resultState').html(place.state)
+                        $('#resultDistance').html(place.distanceFromMindGrub)
+                        $('.success').show();
+                        $('.failure').hide();
+                    } else {
+                        $('.failure').show();
+                        $('.success').hide();
+                    }
+                },
+                error: function () {
+                    console.log('Error in searching the zipcode');
+                }
+            });
+        }
+    </script>
+}
